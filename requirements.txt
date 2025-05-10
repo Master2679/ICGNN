@@ -1,0 +1,33 @@
+# Core Deep Learning Libraries
+torch==2.4.0
+torchvision==0.15.0
+torchaudio==2.4.0
+
+# PyTorch Geometric and Required Extensions
+pyg_lib
+torch-scatter
+torch-sparse
+torch-cluster
+torch-spline-conv
+torch-geometric
+
+# Convex Optimization
+cvxpy
+
+# Training Loop and Experiment Management
+pytorch-lightning
+
+# Visualization and Utilities (Optional but Recommended)
+matplotlib
+numpy
+scipy
+pandas
+networkx
+tqdm
+
+# Logging (Optional but Useful for Experiment Tracking)
+tensorboard
+
+# Python Environment Compatibility
+setuptools
+wheel
