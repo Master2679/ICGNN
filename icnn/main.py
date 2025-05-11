@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import torchvision
 from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
 #from mlp import MLP
 #from cnn_lenet import LeNet_MNIST
 from icnn import ICNN
@@ -20,7 +21,9 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         Loss
     """
     size = len(dataloader.dataset)
+    device = next(model.parameters()).device
     for batch, (X,y) in enumerate(dataloader):
+        X, y = X.to(device), y.to(device)
         #compute prediciton and loss
         pred = model(X)
         loss = loss_fn(pred, y)
@@ -56,9 +59,10 @@ def test_loop(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     test_loss, correct = 0, 0
-
+    device = next(model.parameters()).device
     with torch.no_grad():
         for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
@@ -92,7 +96,7 @@ def call_train_loop(epochs, train_loader, test_loader, model, loss_fn, optimizer
     return model
 
 
-def train_icnn(learning_rate, epochs):
+#def train_icnn(learning_rate, epochs):
     """Trains models (in particular model of ICNN())
 
     Configures the torch.device() to cuda if available
@@ -108,7 +112,7 @@ def train_icnn(learning_rate, epochs):
         learning_rate: the learning rate for the optimizer
         epochs: the number of epochs to train for    
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    """device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print('Using {} device'.format(device))
 
 
@@ -132,14 +136,39 @@ def train_icnn(learning_rate, epochs):
 
     # trained_model = call_train_loop(epochs, train_loader, test_loader, model, loss_fn, optimizer)
 
-    return model
+    return model"""
 
 
-def print_trained_models_weights(model):
+"""def print_trained_models_weights(model):
     for name, parameters in model.named_parameters():
-        print(f"{name}: {parameters}")
+        print(f"{name}: {parameters}")"""
 
+
+def main():
+    # Set device to MPS if available, otherwise fallback to CPU
+    #if torch.backends.mps.is_available():
+     #   device = torch.device("mps")
+    #    print("Using MPS device")
+   # else:
+    device = torch.device("cpu")
+    print("Using CPU device")
+
+    # Load MNIST dataset
+    transform = transforms.Compose([transforms.ToTensor()])
+    train_dataset = datasets.MNIST(root='.', train=True, download=True, transform=transform)
+    test_dataset = datasets.MNIST(root='.', train=False, download=True, transform=transform)
+    
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=64, shuffle=True, num_workers=4)
+
+    # Initialize model, loss function, and optimizer
+    model = ICNN().to(device)
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+
+    # Train the model
+    epochs = 10
+    call_train_loop(epochs, train_loader, test_loader, model, loss_fn, optimizer)
 
 if __name__ == "__main__":
-    trained_model = train_icnn(1e-3, 5)
-    print_trained_models_weights(trained_model)
+    main()

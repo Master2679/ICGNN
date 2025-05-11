@@ -1,78 +1,63 @@
-from torch import nn
+# icnn.py
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 class ICNN(nn.Module):
-    
-    def __init__(self):
-        super(ICNN, self).__init__()
+    """
+    Input-Convex Neural Network:
+      • primary linear layers (no bias) guaranteed non-negative via softplus
+      • skip connections from the raw input (with bias allowed)
+      • ReLU activations to preserve convexity
+    """
+    def __init__(self,
+                 input_dim: int = 28*28,
+                 hidden_dims: list[int] = [512, 512, 512, 512],
+                 output_dim: int = 10):
+        super().__init__()
         self.flatten = nn.Flatten()
+        self.input_dim = input_dim
 
-        self.first_hidden_layer = nn.Sequential(
-            nn.Linear(28*28, 512),
-            nn.ReLU()
+        # build primary (no-bias) + skip layers
+        dims = [input_dim] + hidden_dims
+        self.primary_layers = nn.ModuleList()
+        self.skip_layers    = nn.ModuleList()
+        for in_d, out_d in zip(dims[:-1], dims[1:]):
+            # primary path (no bias)
+            prim = nn.Linear(in_d, out_d, bias=False)
+            # skip path from the original input (bias allowed)
+            skip = nn.Linear(input_dim, out_d, bias=True)
+            # initialize weights positive
+            nn.init.kaiming_uniform_(prim.weight, nonlinearity='relu')
+            prim.weight.data.abs_()
+            self.primary_layers.append(prim)
+            self.skip_layers.append(skip)
+
+        # final output layer (no bias) + skip
+        self.output_prim = nn.Linear(hidden_dims[-1], output_dim, bias=False)
+        self.output_skip = nn.Linear(input_dim, output_dim, bias=True)
+        nn.init.kaiming_uniform_(self.output_prim.weight, nonlinearity='relu')
+        self.output_prim.weight.data.abs_()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # flatten once
+        device = self.primary_layers[0].weight.device
+        x0 = self.flatten(x).to(device)  # [batch, input_dim]
+
+        # first hidden
+        z = F.relu(
+            F.linear(x0, F.softplus(self.primary_layers[0].weight), None)
+            + self.skip_layers[0](x0)
         )
-        #matrices and nonlinearities for 2nd layer
-        
-        self.second_layer_linear_prim = nn.Linear(512,512)
-        self.second_layer_linear_prim.weight.data = torch.abs(
-            self.second_layer_linear_prim.weight.data)
-        self.second_layer_linear_skip = nn.Linear(28*28, 512)
-        self.second_layer_act = nn.ReLU()
 
-        #matrices and nonlinearities for 3rd layer
-        self.third_layer_linear_prim = nn.Linear(512,512)
-        self.third_layer_linear_prim.weight.data = torch.abs(
-            self.third_layer_linear_prim.weight.data)
-        self.third_layer_linear_skip = nn.Linear(28*28, 512)
-        self.third_layer_act = nn.ReLU()
+        # subsequent hidden layers
+        for prim, skip in zip(self.primary_layers[1:], self.skip_layers[1:]):
+            z = F.relu(
+                F.linear(z, F.softplus(prim.weight), None)
+                + skip(x0)
+            )
 
-        #matrices and nonlinearities for 4th layer
-        self.fourth_layer_linear_prim = nn.Linear(512,512)
-        self.fourth_layer_linear_prim.weight.data = torch.abs(
-            self.fourth_layer_linear_prim.weight.data)
-        self.fourth_layer_linear_skip = nn.Linear(28*28, 512)
-        self.fourth_layer_act = nn.ReLU()
-
-        #matrices and nonlinearities for 5th layer
-        self.fifth_layer_linear_prim = nn.Linear(512,512)
-        self.fifth_layer_linear_prim.weight.data = torch.abs(
-            self.fifth_layer_linear_prim.weight.data)
-        self.fifth_layer_linear_skip = nn.Linear(28*28, 512)
-        self.fifth_layer_act = nn.ReLU()
-
-        #final Output layer
-        self.output_layer_linear_prim = nn.Linear(512, 10)
-        self.output_layer_linear_prim.weight.data = -1*torch.abs( #check this
-            self.output_layer_linear_prim.weight.data)
-        self.output_layer_linear_skip = nn.Linear(28*28, 10)
-    
-
-    def forward(self, x):
-        x = self.flatten(x)
-        skip_x2 = x
-        skip_x3 = x
-        skip_x4 = x
-        skip_x5 = x
-        skip_x6 = x
-        z1 = self.first_hidden_layer(x)
-        z1 = self.second_layer_linear_prim(z1)
-        z1 = torch.clamp(z1, min = 0, max = None)
-        y2 = self.second_layer_linear_skip(skip_x2)
-        z2 = self.second_layer_act(z1 + y2)
-        z2 = self.third_layer_linear_prim(z2)
-        z2 = torch.clamp(z2, min = 0, max = None)
-        y3 = self.third_layer_linear_skip(skip_x3)
-        z3 = self.third_layer_act(z2 + y3)
-        z3 = self.fourth_layer_linear_prim(z3)
-        z3 = torch.clamp(z3, min = 0, max = None)
-        y4 = self.fourth_layer_linear_skip(skip_x4)
-        z4 = self.fourth_layer_act(z3 + y4)
-        z4 = self.fifth_layer_linear_prim(z4)
-        z4 = torch.clamp(z4, min = 0, max = None)
-        y5 = self.fifth_layer_linear_skip(skip_x5)
-        z5 = self.fifth_layer_act(z4 + y5)
-        z5 = self.output_layer_linear_prim(z5)
-        z5 = torch.clamp(z5, min = None, max = 0)#check this
-        y6 = self.output_layer_linear_skip(skip_x6)
-        logits = z5 + y6
-        return logits
+        # final output (convex)
+        out = F.linear(z, F.softplus(self.output_prim.weight), None)
+        out = out + self.output_skip(x0)
+        return out
