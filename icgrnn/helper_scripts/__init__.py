@@ -1,0 +1,3 @@
+from .heat_diffusion_helper import train_heat_diffusion_model
+from .cora_helper import train_icgcn, evaluate_icgcn
+from .pubmed_helper import train_icgcn_pubmed

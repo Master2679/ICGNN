@@ -1,0 +1,1 @@
+from .synthetic_data import create_heat_diffusion_dataset
