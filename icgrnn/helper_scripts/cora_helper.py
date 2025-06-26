@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from torch_geometric.data import Data
 import networkx as nx
 
-import torch
+import torch 
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim

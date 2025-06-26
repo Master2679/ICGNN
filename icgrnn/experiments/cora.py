@@ -6,10 +6,13 @@ from torch_geometric.datasets import Planetoid
 from torch_geometric.transforms import NormalizeFeatures
 from sklearn.metrics import accuracy_score, f1_score
 from torch_geometric.data import Data
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from ..models import CoraNodeClassifier
-from ..helper_scripts import train_icgcn,evaluate_icgcn
-from ..visualization import plot_class_accuracy
+from models import CoraNodeClassifier
+from helper_scripts import train_icgcn,evaluate_icgcn
+from visualization import plot_class_accuracy
 
 
 # Set random seed for reproducibility

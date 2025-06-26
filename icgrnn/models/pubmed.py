@@ -1,5 +1,5 @@
 
-from ..layers import ConvexGCNLayer_pubmed
+from layers import ConvexGCNLayer_pubmed
 
 
 import torch

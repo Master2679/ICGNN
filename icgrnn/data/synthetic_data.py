@@ -1,3 +1,8 @@
+import torch
+import numpy as np
+import networkx as nx
+from torch_geometric.data import Data
+
 
 def create_heat_diffusion_dataset(num_nodes=10, num_timesteps=20, num_samples=100, diffusion_rate=0.1):
     """

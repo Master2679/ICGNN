@@ -8,10 +8,16 @@ from torch_geometric.datasets import Planetoid
 from torch_geometric.transforms import NormalizeFeatures
 from sklearn.metrics import accuracy_score, f1_score
 from torch_geometric.data import Data
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from ..models import Pubmed_Node_Classifier
-from ..helper_scripts import train_icgcn_pubmed
-from ..visualization import plot_accuracy_pubmed,plot_confusion_matrix_pubmed,plot_class_accuracy_pubmed
+from models import Pubmed_Node_Classifier
+from helper_scripts import train_icgcn_pubmed
+from visualization import plot_accuracy_pubmed,plot_confusion_matrix_pubmed,plot_class_accuracy_pubmed
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Load PubMed dataset
 dataset = Planetoid(root='/tmp/PubMed', name='PubMed', transform=NormalizeFeatures())

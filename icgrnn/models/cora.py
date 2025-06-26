@@ -7,7 +7,7 @@ from torch_geometric.transforms import NormalizeFeatures
 from sklearn.metrics import accuracy_score, f1_score
 from torch_geometric.data import Data
 
-from ..layers import ConvexGCNLayer_cora
+from layers import ConvexGCNLayer_cora
 
 
 

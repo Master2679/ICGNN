@@ -1,5 +1,5 @@
-from ..message_passing import ConvexMessagePassing
-from ..models import ConvexLayerICNN
+from message_passing import ConvexMessagePassing
+from models import ConvexLayerICNN
 
 import torch
 import torch.nn as nn

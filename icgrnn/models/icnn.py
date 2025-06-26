@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from torch_geometric.data import Data
 import networkx as nx
 
-from ..layers import ConvexLayer
+from layers import ConvexLayer
 
 
 class ConvexLayerICNN(nn.Module):

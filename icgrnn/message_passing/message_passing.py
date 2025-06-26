@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from torch_geometric.data import Data
 import networkx as nx
 
-from ..models import ConvexLayerICNN
+from models import ConvexLayerICNN
 
 class ConvexMessagePassing(MessagePassing):
     """Message passing layer that maintains input convexity."""

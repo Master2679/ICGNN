@@ -1,6 +1,6 @@
 
-from ..models import ConvexLayerICNN
-from ..message_passing import ConvexMessagePassing
+from models import ConvexLayerICNN
+from message_passing import ConvexMessagePassing
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from torch_geometric.data import Data
 import networkx as nx
 
-from ..layers import ConvexLayer
+from layers import ConvexLayer
 
 class ICGRNN(nn.Module):
     """Input Convex Graph Recurrent Neural Network using ConvexLayerICNN."""

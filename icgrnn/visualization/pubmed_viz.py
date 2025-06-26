@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
-from sklearn.base import accuracy_score
+from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from torch_geometric.utils import to_networkx
 import torch

@@ -1,12 +1,13 @@
 import sys,os
 
 # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from ..models import HeatDiffusionICGRNN
+from models import HeatDiffusionICGRNN
 # from icgrnn.models import HeatDiffusionICGRNN
-from ..helper_scripts import train_heat_diffusion_model
-from ..data import create_heat_diffusion_dataset
-from ..visualization import visualize_model_performance
+from helper_scripts import train_heat_diffusion_model
+from data import create_heat_diffusion_dataset
+from visualization import visualize_model_performance
 
 print("Generating synthetic heat diffusion data...")
 
