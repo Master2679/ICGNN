@@ -141,7 +141,7 @@ output, hidden = model(x, edge_index, steps=20)
 
 ### Heat Diffusion Control Results
 
-![Heat Diffusion Results](images/heat_diffusion_results.png)
+![Heat Diffusion Results](icgrnn/images/heat_diffusion_results.png)
 *Temperature evolution prediction (left) and control input optimization (right)*
 
 
